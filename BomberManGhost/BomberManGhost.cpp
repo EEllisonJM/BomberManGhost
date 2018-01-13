@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <iostream>
 #include <windows.h>
+
+#include <assert.h>
+#include <fstream>
+#include "ImageLoader.h"
+
 using namespace std;
 
 int bomberVidas = 3;
@@ -37,162 +42,204 @@ int bombaEnemigoB[] = { -5,6 };
 int bombaEnemigoC[] = { -5,5 };
 int bombaEnemigoD[] = { -6,5 };
 
+/* ==============TEXTURE VALUES=============================================================== */
+#define M_PI 3.14159265358979323846
+
+GLuint _text1;
+GLuint _text2;
+
+GLuint _text4;
+GLuint _text5;
+GLuint _text6;
+
+GLuint loadTexture(Image* image) {
+	GLuint idtextura;
+	glGenTextures(1, &idtextura);
+	glBindTexture(GL_TEXTURE_2D, idtextura);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+	return idtextura;
+}
+void initRendering() {
+	Image* lado1 = loadBMP("1.bmp");
+	_text1 = loadTexture(lado1);
+	delete lado1;
+
+	Image* lado2 = loadBMP("2.bmp");
+	_text2 = loadTexture(lado2);
+	delete lado2;
+
+
+	Image* lado4 = loadBMP("4.bmp");
+	_text4 = loadTexture(lado4);
+	delete lado4;
+
+	Image* lado5 = loadBMP("5.bmp");
+	_text5 = loadTexture(lado5);
+	delete lado5;
+
+	Image* lado6 = loadBMP("6.bmp");
+	_text6 = loadTexture(lado6);
+	delete lado6;
+}
+void cargarTextura(GLuint _textura) {
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _textura);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+/* ============================================================================= */
 void dibujarPlano() {
+	cargarTextura(_text1);
 	glBegin(GL_QUADS);
-	glColor3f(0, 10, 0);
-	glVertex2f(pA[0], pA[1]);//A
-	glVertex2f(7, 7);//B
-	glVertex2f(7, -7);//C
-	glVertex2f(-7, -7);//D	
+	glTexCoord2f(pA[0], pA[1]); glVertex3f(pA[0], pA[1],0);
+	glTexCoord2f(7,7); glVertex3f(7, 7,0);
+	glTexCoord2f(7,-7); glVertex3f(7, -7,0);
+	glTexCoord2f(-7,-7); glVertex3f(-7, -7,0);
 	glEnd();
 }
 void dibujarBordes() {
+	cargarTextura(_text2);
 	//Borde arriba
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex3f(-7, 7, 0);//A
-	glVertex3f(7, 7, 0);//B
-	glVertex3f(7, 6, 0);//C
-	glVertex3f(-7, 6, 0);//C
+	glTexCoord2f(-7,7); glVertex3f(-7, 7,0);
+	glTexCoord2f(7,7); glVertex3f(7, 7,0);
+	glTexCoord2f(7,6); glVertex3f(7, 6,0);
+	glTexCoord2f(-7,6); glVertex3f(-7, 6,0);
 	glEnd();
+	
+	cargarTextura(_text2);
 	//Borde abajo
-	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex3f(7, -7, 0);//A
-	glVertex3f(-7, -7, 0);//B
-	glVertex3f(-7, -6, 0);//C
-	glVertex3f(7, -6, 0);//C
+	glBegin(GL_QUADS);	
+	glTexCoord2f(7,-7); glVertex3f(7, -7, 0);//A
+	glTexCoord2f(-7,-7); glVertex3f(-7, -7, 0);//B
+	glTexCoord2f(-7,-6); glVertex3f(-7, -6, 0);//C
+	glTexCoord2f(7,-6); glVertex3f(7, -6, 0);//C
 	glEnd();
+	
+	cargarTextura(_text2);
 	//Borde izquierda
-	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex3f(-7, 6, 0);//A
-	glVertex3f(-6, 6, 0);//B
-
-	glVertex3f(-6, -6, 0);//A
-	glVertex3f(-7, -6, 0);//B
+	glBegin(GL_QUADS);	
+	glTexCoord2f(-7,6); glVertex3f(-7, 6, 0);//A
+	glTexCoord2f(-6,6); glVertex3f(-6, 6, 0);//B
+	glTexCoord2f(-6,-6); glVertex3f(-6, -6, 0);//A
+	glTexCoord2f(-7,-6); glVertex3f(-7, -6, 0);//B
 	glEnd();
+	
+	cargarTextura(_text2);
 	//Borde derecha
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex3f(7, -6, 0);//A
-	glVertex3f(6, -6, 0);//B
-
-	glVertex3f(6, 6, 0);//A
-	glVertex3f(7, 6, 0);//B
+	glTexCoord2f(7,-6); glVertex3f(7, -6, 0);//A
+	glTexCoord2f(6,-6); glVertex3f(6, -6, 0);//B
+	glTexCoord2f(6,6); glVertex3f(6, 6, 0);//A
+	glTexCoord2f(7,6); glVertex3f(7, 6, 0);//B
 	glEnd();
 }
+void dibujar(int x,int y){
+	glTexCoord2f(x,y); glVertex2f(x, y);
+}
 void dibujarCajas() {
-	//Z
+	cargarTextura(_text1);
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(-5, 5);//A
-	glVertex2f(-4, 5);//B
-	glVertex2f(-4, 2);//C
-	glVertex2f(-5, 2);//d
+	dibujar(-5, 5);
+	dibujar(-4, 5);
+	dibujar(-4, 2);
+	dibujar(-5, 2);
+	glEnd();
+	//
+	cargarTextura(_text1);
+	glBegin(GL_QUADS);
+	dibujar(-3, 5);//B
+	dibujar(-1, 5);//B
+	dibujar(-1, 2);//B
+	dibujar(-3, 2);//B
 	glEnd();
 	//
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(-3, 5);//B
-	glVertex2f(-1, 5);//B
-	glVertex2f(-1, 2);//B
-	glVertex2f(-3, 2);//B
+	//glColor3f(10, 0, 0);
+	dibujar(1, 5);//B
+	dibujar(3, 5);//B
+	dibujar(3, 2);//B
+	dibujar(1, 2);//B
 	glEnd();
 	//
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(1, 5);//B
-	glVertex2f(3, 5);//B
-	glVertex2f(3, 2);//B
-	glVertex2f(1, 2);//B
-	glEnd();
-	//
-	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(5, 5);//A
-	glVertex2f(4, 5);//B
-	glVertex2f(4, 2);//C
-	glVertex2f(5, 2);//d
+	//glColor3f(10, 0, 0);
+	dibujar(5, 5);//A
+	dibujar(4, 5);//B
+	dibujar(4, 2);//C
+	dibujar(5, 2);//d
 	glEnd();
 	//-------------------------------------
 	//--En medio
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(-5, 1);//A
-	glVertex2f(-4, 1);//B
-	glVertex2f(-4, -1);//B
-	glVertex2f(-5, -1);//A	
+	//glColor3f(10, 0, 0);
+	dibujar(-5, 1);//A
+	dibujar(-4, 1);//B
+	dibujar(-4, -1);//B
+	dibujar(-5, -1);//A	
 	glEnd();
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(-3, 1);//A
-	glVertex2f(-1, 1);//B
-	glVertex2f(-1, -1);//B
-	glVertex2f(-3, -1);//A	
+	//glColor3f(10, 0, 0);
+	dibujar(-3, 1);//A
+	dibujar(-1, 1);//B
+	dibujar(-1, -1);//B
+	dibujar(-3, -1);//A	
 	glEnd();
 	//-------------------------------------------
 	//En medio Positivo
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(5, 1);//A
-	glVertex2f(4, 1);//B
-	glVertex2f(4, -1);//B
-	glVertex2f(5, -1);//A	
+	//glColor3f(10, 0, 0);
+	dibujar(5, 1);//A
+	dibujar(4, 1);//B
+	dibujar(4, -1);//B
+	dibujar(5, -1);//A	
 	glEnd();
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(3, 1);//A
-	glVertex2f(1, 1);//B
-	glVertex2f(1, -1);//B
-	glVertex2f(3, -1);//A	
+	dibujar(3, 1);//A
+	dibujar(1, 1);//B
+	dibujar(1, -1);//B
+	dibujar(3, -1);//A	
 	glEnd();
 	//-------------------------------------------
 	//Abajo
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(-5, -5);//A
-	glVertex2f(-4, -5);//B
-	glVertex2f(-4, -2);//C
-	glVertex2f(-5, -2);//d
+	dibujar(-5, -5);//A
+	dibujar(-4, -5);//B
+	dibujar(-4, -2);//C
+	dibujar(-5, -2);//d
 	glEnd();
 	//
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(-3, -5);//B
-	glVertex2f(-1, -5);//B
-	glVertex2f(-1, -2);//B
-	glVertex2f(-3, -2);//B
+	dibujar(-3, -5);//B
+	dibujar(-1, -5);//B
+	dibujar(-1, -2);//B
+	dibujar(-3, -2);//B
 	glEnd();
 	//
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(1, -5);//B
-	glVertex2f(3, -5);//B
-	glVertex2f(3, -2);//B
-	glVertex2f(1, -2);//B
+	dibujar(1, -5);//B
+	dibujar(3, -5);//B
+	dibujar(3, -2);//B
+	dibujar(1, -2);//B
 	glEnd();
-	//
 	glBegin(GL_QUADS);
-	glColor3f(10, 0, 0);
-	glVertex2f(5, -5);//A
-	glVertex2f(4, -5);//B
-	glVertex2f(4, -2);//C
-	glVertex2f(5, -2);//d
+	dibujar(5, -5);//A
+	dibujar(4, -5);//B
+	dibujar(4, -2);//C
+	dibujar(5, -2);//d
 	glEnd();
 }
 void dibujarEnemigo() {
-	glBegin(GL_QUADS);
-	glColor3f(0, 0, 10);
-	glVertex2f(enemigoA[0], enemigoA[1]);//A
-	glVertex2f(enemigoB[0], enemigoB[1]);//A
-	glVertex2f(enemigoC[0], enemigoC[1]);//A
-	glVertex2f(enemigoD[0], enemigoD[1]);//A
+	cargarTextura(_text5);
+	glBegin(GL_QUADS);	
+	dibujar(enemigoA[0], enemigoA[1]);//A
+	dibujar(enemigoB[0], enemigoB[1]);//A
+	dibujar(enemigoC[0], enemigoC[1]);//A
+	dibujar(enemigoD[0], enemigoD[1]);//A
 	glEnd();
 }
 void eliminarRastroEnemigo() {
 	glBegin(GL_QUADS);
-	glColor3f(0, 10, 0);
 	glVertex2f(enemigoA[0], enemigoA[1]);//A
 	glVertex2f(enemigoB[0], enemigoB[1]);//A
 	glVertex2f(enemigoC[0], enemigoC[1]);//A
@@ -284,23 +331,22 @@ void posicionBomba() {
 void dibujarBomba() {
 	if (bomba == true)
 	{
-		//posicionBomba ya debe de estar asignada
+		cargarTextura(_text4);
 		glBegin(GL_QUADS);
-		glColor3f(5, 5, 10);//Parece ser blanco
-		glVertex2f(bombaA[0], bombaA[1]);//A
-		glVertex2f(bombaB[0], bombaB[1]);//A
-		glVertex2f(bombaC[0], bombaC[1]);//A
-		glVertex2f(bombaD[0], bombaD[1]);//A
+		glTexCoord2f(bombaA[0], bombaA[1]); glVertex3f(bombaA[0], bombaA[1],0);//A
+		glTexCoord2f(bombaB[0], bombaB[1]); glVertex3f(bombaB[0], bombaB[1],0);//A
+		glTexCoord2f(bombaC[0], bombaC[1]); glVertex3f(bombaC[0], bombaC[1],0);//A
+		glTexCoord2f(bombaD[0], bombaD[1]); glVertex3f(bombaD[0], bombaD[1],0);//A		
 		glEnd();
 	}
 }
 void dibujarBomber() {
+	cargarTextura(_text6);
 	glBegin(GL_QUADS);
-	glColor3f(10, 5, 0);
-	glVertex2f(bomberA[0], bomberA[1]);//A
-	glVertex2f(bomberB[0], bomberB[1]);//A
-	glVertex2f(bomberC[0], bomberC[1]);//A
-	glVertex2f(bomberD[0], bomberD[1]);//A
+	dibujar(bomberA[0], bomberA[1]);//A
+	dibujar(bomberB[0], bomberB[1]);//A
+	dibujar(bomberC[0], bomberC[1]);//A
+	dibujar(bomberD[0], bomberD[1]);//A
 	glEnd();
 }
 void traslacionBomber(int a0, int a1) {
@@ -364,9 +410,9 @@ void mover(char lado[]) {
 		}
 	}
 }
-void cargarEscenario() {
-	dibujarPlano();
-	dibujarBordes();
+void cargarEscenario() {	
+	//dibujarPlano();
+	dibujarBordes();	
 	dibujarCajas();
 	if (enemigoVive == true)
 	{
@@ -399,9 +445,22 @@ void impactoBomba() {
 	}
 }
 static void display(void) {
-	cargarEscenario();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	
+	glPushMatrix();
+	cargarEscenario();	
 	dibujarBomba();
+	/*2D*/
+	gluLookAt(
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f
+	);
+	glPopMatrix();
 	glFlush();
+	glutSwapBuffers();
+
 	Sleep(120);
 	tiempo += 1;
 	if (tiempo == 30 && bomba == true)
@@ -412,6 +471,7 @@ static void display(void) {
 		impactoBomba();
 	}
 	cout << tiempo << "-";
+	
 }
 
 void reshape(int w, int h) {
@@ -421,7 +481,6 @@ void reshape(int w, int h) {
 	glOrtho(-10, 10, -10, 10, 0, 20);
 	glMatrixMode(GL_MODELVIEW);
 }
-
 void ArrowKey(int Key, int e, int y) {
 	switch (Key) {
 	case GLUT_KEY_PAGE_UP:
@@ -487,30 +546,17 @@ void Keyboard(unsigned char key, int x, int y) {
 }
 int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
-	glutInitWindowSize(640, 640);
-	glutInitWindowPosition(320, 37);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
-	glutCreateWindow("Polígonos");
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	glutCreateWindow("Texturas En 3D");
+	glutSetCursor(GLUT_CURSOR_NONE);
+	//glutFullScreen();
+	initRendering();
 	glutDisplayFunc(display);
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
-	/* glutIdleFunc sets the global idle callback to be func so a GLUT program can perform background
-	processing tasks or continuous animation when window system events are not being received. If enabled,
-	the idle callback is continuously called when events are not being received. The callback routine
-	has no parameters. The current window and current menu will not be changed before the idle callback.
-	Programs with multiple windows and/or menus should explicitly set the current window and/or current
-	menu and not rely on its current setting.
-	The amount of computation and rendering done in an idle callback should be minimized to avoid affecting
-	the program's interactive response. In general, not more than a single frame of rendering should be
-	done in an idle callback. */
-	glutIdleFunc(display);
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
 	glutReshapeFunc(reshape);
-	glutKeyboardFunc(Keyboard);
+	glutIdleFunc(display);
 	glutSpecialFunc(ArrowKey);
-
+	glEnable(GL_DEPTH_TEST);
+	//glutKeyboardFunc(keyboard);
 	glutMainLoop();
-
 	return 0;
 }
-
