@@ -49,8 +49,8 @@ GLuint _text1;
 GLuint _text2;
 
 GLuint _text4;
-GLuint _text5;
-GLuint _text6;
+GLuint _textGhost;
+GLuint _textAsesino;
 
 GLuint loadTexture(Image* image) {
 	GLuint idtextura;
@@ -74,11 +74,11 @@ void initRendering() {
 	delete lado4;
 
 	Image* lado5 = loadBMP("5.bmp");
-	_text5 = loadTexture(lado5);
+	_textGhost = loadTexture(lado5);
 	delete lado5;
 
 	Image* lado6 = loadBMP("6.bmp");
-	_text6 = loadTexture(lado6);
+	_textAsesino = loadTexture(lado6);
 	delete lado6;
 }
 void cargarTextura(GLuint _textura) {
@@ -230,7 +230,7 @@ void dibujarCajas() {
 	glEnd();
 }
 void dibujarEnemigo() {
-	cargarTextura(_text5);
+	cargarTextura(_textGhost);
 	glBegin(GL_QUADS);	
 	dibujar(enemigoA[0], enemigoA[1]);//A
 	dibujar(enemigoB[0], enemigoB[1]);//A
@@ -341,7 +341,7 @@ void dibujarBomba() {
 	}
 }
 void dibujarBomber() {
-	cargarTextura(_text6);
+	cargarTextura(_textAsesino);
 	glBegin(GL_QUADS);
 	dibujar(bomberA[0], bomberA[1]);//A
 	dibujar(bomberB[0], bomberB[1]);//A
@@ -485,7 +485,7 @@ void ArrowKey(int Key, int e, int y) {
 	switch (Key) {
 	case GLUT_KEY_PAGE_UP:
 		break;
-	case GLUT_KEY_PAGE_DOWN://Avanzar Página
+	case 32://Avanzar Página
 		if (bombaActiva == false)
 		{
 			bomba = true;//Entonces -> dibujarBomba();
@@ -549,14 +549,13 @@ int main(int argc, char *argv[]) {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutCreateWindow("Texturas En 3D");
 	glutSetCursor(GLUT_CURSOR_NONE);
-	//glutFullScreen();
+	glutFullScreen();
 	initRendering();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(display);
 	glutSpecialFunc(ArrowKey);
 	glEnable(GL_DEPTH_TEST);
-	//glutKeyboardFunc(keyboard);
 	glutMainLoop();
 	return 0;
 }
